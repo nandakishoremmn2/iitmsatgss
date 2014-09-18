@@ -1,0 +1,63 @@
+{% extends "KEAM/base.html" %}
+
+{% block title %}Edit Tags{% endblock %}
+
+{% block content %}
+	<div class="col-sm-6 col-sm-offset-3 col-md-6 col-md-offset-3 col-lg-4 col-lg-offset-4 column" ng-controller="LoginController">
+		{% if auth_error %}
+		<alert type="danger">Login incorrect!</alert>
+		{% endif %}
+		<h1 id="overview" class="page-header text-center">Login</h1>
+		<form class="form-horizontal" method='post' action='.' name="loginForm" role="form">
+		{% csrf_token %}
+		  <div class="form-group">
+		    <div class="input-group">
+		    	<span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
+		      <input class="form-control" name="email" ng-model="email" required id="inputEmail" placeholder="Email">
+		    </div>
+		  </div>
+		  <div class="form-group">
+		    <div class="input-group">
+		    	<span class="input-group-addon"><i class="glyphicon glyphicon-asterisk"></i></span>
+		      <input type="password" class="form-control" name="password" required id="inputPassword" placeholder="Password">
+		    </div>
+		  </div>
+		  <div class="form-group">
+		    <div class="col-lg-offset-4 col-lg-4 col-md-offset-4 col-md-4 col-sm-offset-4 col-sm-4">
+		      <button type="submit" class="btn btn-primary btn-block">Login <i class="glyphicon glyphicon-log-in"></i></button>
+		    </div>
+		  </div>
+		</form>
+	</div>
+{% endblock %}
+{% block scripts %}
+    <script type="text/javascript">
+   		var app = angular.module("tagAdminApp", ['ngRoute', 'ui.bootstrap', 'xeditable', 'ngCookies'])
+    	.config(function($interpolateProvider) {
+		    $interpolateProvider.startSymbol('{$');
+		    $interpolateProvider.endSymbol('$}');
+		})
+		app.controller("LoginController", function($scope, $http, $cookies) {
+			$http.defaults.headers.post['X-CSRFToken'] = $cookies['csrftoken'];
+			$scope.isDisabled = false;
+			$scope.submit = function(){
+				alert("submitting")
+				$http.post("{% url 'keam_login' %}", {
+					username: $scope.email,
+					password: $scope.password,
+				}).success(function(response){
+					console.log(response);
+				}).error(function(response){
+					console.log(response)
+				})
+				return false
+			}
+			$scope.closeAlert = function(index) {
+				$scope.alerts.splice(index, 1);
+			};
+		})
+		.run(function(editableOptions) {
+		  editableOptions.theme = 'bs3';
+		});
+    </script>
+{% endblock %}

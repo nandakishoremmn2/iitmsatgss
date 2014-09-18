@@ -1,0 +1,7 @@
+localsettings.py
+*.log
+*.pyc
+media/
+staticfiles/
+*.zip
+*.out

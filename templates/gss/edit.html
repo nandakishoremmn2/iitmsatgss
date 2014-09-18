@@ -1,0 +1,89 @@
+{% extends "gss/base.html" %}
+
+{% block title %}Edit Tags{% endblock %}
+
+{% block templates %}
+
+	<script type="text/ng-template"  id="default.html">
+		<div class="col-md-3 column hidden-xs">
+			<ul class="nav nav-pills nav-stacked well" style="max-width: 300px;">
+			  <li><a href="#">Home</a></li>
+			  <li ng-class="[edit_tag_page]"><a href="#">Edit Tags</a></li>
+			  <li ng-class="[edit_question_page]"><a href="#/questions/">Questions</a></li>
+			  <li ng-class="[add_question_page]"><a href="#/questions/add/">Add New Question</a></li>
+			</ul>
+		</div>
+	</script>
+
+
+	<script type="text/ng-template"  id="tc_new.html">
+		<div class="col-md-3 column hidden-xs">
+			<ul class="nav nav-pills nav-stacked well" style="max-width: 300px;">
+			  <li><a href="#">Home</a></li>
+			  <li ng-class="[edit_tag_page]"><a href="#">Edit Tags</a></li>
+			  <li ng-class="[edit_question_page]"><a href="#/questions/">Questions</a></li>
+			  <li ng-class="[add_question_page]"><a href="#/questions/add/">Add New Question</a></li>
+			</ul>
+		</div>
+	</script>
+
+{% endblock %}
+
+{% block content %}
+	<ng-view>
+	</ng-view>
+{% endblock %}
+
+{% block scripts %}
+    <script type="text/javascript">
+   		var app = angular.module("tagAdminApp", ['ngRoute', 'ui.bootstrap', 'ui.bootstrap.typeahead', 'xeditable', 'decipher.tags'])
+    	.config(function($interpolateProvider, $routeProvider) {
+		    $interpolateProvider.startSymbol('{$');
+		    $interpolateProvider.endSymbol('$}');
+
+			$routeProvider.when("/", {
+				templateUrl: "default.html",
+				controller: "DefaultController"
+			}).when("/new/", {
+				templateUrl: "tc_new.html",
+				controller: "newTCController"
+			}).otherwise({
+				redirectTo:'/'
+			});	    
+
+		})
+		/* controller for editing tags */
+		app.controller("DefaultController", function($scope, $http) {
+			$scope.edit_tag_page = 'active';
+			$scope.isDisabled = false;
+			$scope.alerts = [{ msg: 'Loading Tags. Please wait...', type: 'info'}]
+			$scope.btnToggle = function(){
+				$scope.isDisabled = !$scope.isDisabled;
+			}
+		    $scope.delete = function(data) {
+		    	if(!confirm("Deleting " + data.name + "\nAre you sure?"))return;
+		    	$scope.btnToggle();
+		    };
+		    $scope.add = function(data) {
+		    	$scope.btnToggle();
+				data.sub_tags.push({
+					"name": "subtag" + (data.sub_tags.length + 1),
+					"sub_tags": [ ]
+				});
+		    };
+		    $scope.edit = function(name, data) {
+		    	$scope.btnToggle();
+		        data.name = name
+		    };
+
+
+			$scope.closeAlert = function(index) {
+				$scope.alerts.splice(index, 1);
+			};
+		})
+		.run(function(editableOptions) {
+		  editableOptions.theme = 'bs3';
+		});
+
+    </script>
+{% endblock %}
