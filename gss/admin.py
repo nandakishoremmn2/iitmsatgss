@@ -1,23 +1,23 @@
 from django.contrib import admin
-from gss.models import Question, Tag, Answer
+from gss.models import Telecommand, Attribute, Option
 
-class TagsInline(admin.TabularInline):
-	model = Tag
-	extra = 5
+class OptionsInline(admin.TabularInline):
+	model = Option
+	extra = 1
 
-class TagAdmin(admin.ModelAdmin):
-	fields = ['name', 'parent_tag']
-	inlines = [TagsInline]	
+class AttributesInline(admin.StackedInline):
+	inlines = [OptionsInline]
+	model = Attribute
+	extra = 1
 
-class AnswersInline(admin.TabularInline):
-	model = Answer
-	extra = 5
+class AttributeAdmin(admin.ModelAdmin):
+	inlines = [OptionsInline]
+	model = Attribute
 
-class QuestionAdmin(admin.ModelAdmin):
-	inlines = [AnswersInline]
-	list_display = ('__unicode__', 'created_on', 'is_approved')
-	list_filter = ('author', 'created_on', 'tags')
+class TelecommandAdmin(admin.ModelAdmin):
+	inlines = [AttributesInline]
+	list_filter = ('author', 'created_on', 'last_modified')
+	model = Telecommand
 
-admin.site.register(Question, QuestionAdmin)
-admin.site.register(Tag, TagAdmin)
-admin.site.register(Answer)
+admin.site.register(Telecommand, TelecommandAdmin)
+admin.site.register(Attribute, AttributeAdmin)
