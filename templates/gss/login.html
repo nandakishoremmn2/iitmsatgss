@@ -1,4 +1,4 @@
-{% extends "KEAM/base.html" %}
+{% extends "gss/base.html" %}
 
 {% block title %}Edit Tags{% endblock %}
 
@@ -7,7 +7,7 @@
 		{% if auth_error %}
 		<alert type="danger">Login incorrect!</alert>
 		{% endif %}
-		<h1 id="overview" class="page-header text-center">Login</h1>
+		<h1 id="overview" class="page-header text-center"><img src="../../static/gss/img/logo.png"><br>Login</h1>
 		<form class="form-horizontal" method='post' action='.' name="loginForm" role="form">
 		{% csrf_token %}
 		  <div class="form-group">
@@ -42,7 +42,7 @@
 			$scope.isDisabled = false;
 			$scope.submit = function(){
 				alert("submitting")
-				$http.post("{% url 'keam_login' %}", {
+				$http.post("", {
 					username: $scope.email,
 					password: $scope.password,
 				}).success(function(response){
