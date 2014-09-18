@@ -1,71 +1,51 @@
 from django.db import models
 from django.contrib.auth.models import User
 
-# Create your models here.
-
-class Tag(models.Model):
-	name = models.CharField(max_length=100)
-	parent_tag = models.ForeignKey('self', null=True, blank=True)
+class Telecommand(models.Model):
+	name = models.CharField(max_length=200)
+	description = models.TextField()
+	author = models.ForeignKey(User)
+	created_on = models.DateField(auto_now_add=True)
+	last_modified = models.DateField(auto_now=True)
 
 	def __unicode__(self):
 		return self.name
 
-class Remark(models.Model):
-	remark = models.TextField()
-	cleared = models.BooleanField(default=False)
-	author = models.ForeignKey(User)
+TEXT_INPUT = '0'
+DROP_DOWN = '1'
+RADIO = '2'
+ATTR_TYPE_CHOICES = (
+	(TEXT_INPUT, 'Text Input'),
+	(DROP_DOWN, 'Drop Down'),
+	(RADIO, 'Radio'),
+)
 
-	def __unicode__(self):
-		return self.remark
+class Attribute(models.Model):
+	telecommand = models.ForeignKey(Telecommand, null=True, blank=True)
+	
+	name = models.CharField(max_length=200)
+	value = models.CharField(max_length=200)
 
-class Question(models.Model):
-	question = models.TextField()
-	author = models.ForeignKey(User, blank=True)
-	tags = models.ManyToManyField(Tag, blank=True)
-	detailed_answer = models.TextField(default="ans")
-	approved_by = models.ManyToManyField(User, related_name='approver', blank=True)
-	locked = models.BooleanField(default=False)
-	created_on = models.DateField(auto_now_add=True)
-	last_modified = models.DateField(auto_now=True)
-	remarks = models.ManyToManyField(Remark, blank=True)
+	fixed = models.BooleanField(default=False)
 
-	TEST = '0'
-	PRACTICE = '1'
-	TEST_TYPE_CHOICES = (
-		(TEST, 'Test'),
-		(PRACTICE, 'Practice'),
-	)
 	type = models.CharField(
-		max_length=1,
-		choices=TEST_TYPE_CHOICES,
-		default=TEST
+		max_length=2,
+		choices=ATTR_TYPE_CHOICES,
+		default=TEXT_INPUT
 	)
 
-	EASY = '0'
-	MEDIUM = '1'
-	HARD = '2'
-	DIFFICULTY_CHOICES = (
-		(EASY, 'Easy'),
-		(MEDIUM, 'Medium'),
-		(HARD, 'Hard'),
+	selected_option = models.OneToOneField('gss.Option',
+		related_name="selected_option",
+		null=True,
+		blank=True,
+		help_text='Use this only if attribute type is radio or dropdown'
 	)
-	difficulty = models.CharField(
-		max_length=1,
-		choices=DIFFICULTY_CHOICES,
-		default=MEDIUM
-	)
-
-	def is_approved(self):
-		return self.approved_by.count() > 0
 
 	def __unicode__(self):
-		return "(" + str(self.author) + ")-> " +  (self.question[:50] + '...' if len(self.question) > 50 else self.question)
+		return self.name
 
-class Answer(models.Model):
-	answer = models.CharField(max_length=150, default="1")
-	question = models.ForeignKey(Question)
-	correct_answer = models.BooleanField(default=False)
-	answerd_by = models.IntegerField(default=0)
-
-	def __unicode__(self):
-		return self.answer
+class Option(models.Model):
+	attribute = models.ForeignKey(Attribute, null=True, blank=True)
+	
+	name = models.CharField(max_length=200)
+	value = models.CharField(max_length=200, null=True)
